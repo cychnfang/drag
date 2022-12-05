@@ -5,17 +5,13 @@ import { createDrag } from '../../dist/bundle.js';
 let drag: any;
 onMounted(() => {
   drag = createDrag({
-    el: 'drag-container'
+    el: '#drag-container'
   });
 });
 
 const ipt = ref();
 const handleAdd = () => {
 
-  const $ipt = document.querySelector('#ipt');
-  console.log()
-
-  drag.createRect([{ el: $ipt?.cloneNode(true) }]);
 };
 </script>
 

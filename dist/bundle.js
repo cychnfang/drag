@@ -1,125 +1,124 @@
-function createRectInstance(options) {
-    const instance = {
-        $el: options.el,
-        id: null,
-        x: options.x || 0,
-        y: options.y || 0,
-        width: 0,
-        height: 0
+// 是否是字符串
+const isString = (str) => typeof str === 'string';
+// 是否是DOM节点
+const isDomNode = (node) => node instanceof Element;
+const createDrag = (options) => {
+    const drag = {
+        _rectMap: new Map() // 物料存储区
     };
-    instance.$el = instance.$el;
-    const { width, height } = instance.$el.getBoundingClientRect();
-    setTimeout(() => {
-        console.log(instance.$el.getBoundingClientRect(), '-----');
-    });
-    Promise.resolve().then(res => {
-    });
-    instance.width = width;
-    instance.height = height;
-    instance.$el.style.position = 'absolute';
-    instance.$el.style.left = `${instance.x}px`;
-    instance.$el.style.top = `${instance.y}px`;
-    return instance;
-}
-// export function initProps(el, rawProps) {
-//   const props = {};
-//   const { x, y, el } = rawProps;
-// }
-
-function createDrag(options) {
-    const drag = {};
-    drag._rectMap = new Map();
-    // 创建模块
-    drag.createRect = (rect) => {
-        createRect(drag, rect);
-    };
-    initOptions(drag, options);
-    drag.$el.appendChild(drag._container.$el);
+    init(drag, options);
+    //
+    mount(drag);
+    //  返回一些api
     return drag;
+};
+// 初始化
+function init(drag, options) {
+    // 格式化wrap
+    normalizeContainer(drag, options);
+    if (!drag._container)
+        return;
+    // 格式化画布
+    normalizeCanvas(drag);
+    // 格式化网格
+    normalizeGrid(drag, options);
 }
-function initOptions(drag, options) {
-    const { el, width = 3000, height = 1500 } = options;
-    drag.$el = document.querySelector(`#${el}`);
-    drag.$el.style.overflow = 'auto';
-    createContainer(drag, width, height);
-    createGrid(drag, width, height);
+// 格式化容器
+function normalizeContainer(drag, options) {
+    let $el = null;
+    const { el } = options;
+    // pass id selector
+    if (isString(el)) {
+        $el = document.querySelector(options.el);
+    }
+    // pass DOM
+    if (isDomNode(options.el))
+        $el = el;
+    if (!$el) {
+        console.warn('请传入dom节点，或者id选择器');
+        return;
+    }
+    // init _container props
+    const { width, height } = $el.getBoundingClientRect();
+    drag._container = {
+        $el,
+        width,
+        height
+    };
 }
-function createContainer(drag, width, height) {
-    const _container = {};
-    drag._container = _container;
-    _container.$el = document.createElement('div');
-    _container.$el.style.width = `${width}px`;
-    _container.$el.style.height = `${height}px`;
-    _container.$el.style.position = 'relative';
-    _container.$el.style.zIndex = 0;
-    // 绑定鼠标事件
-    bindEvent(drag._container.$el);
+// 格式化画布
+function normalizeCanvas(drag) {
+    const { width, height } = drag._container;
+    drag._canvas = {
+        $el: document.createElement('div'),
+        width,
+        height
+    };
 }
-function createGrid(drag, width, height) {
-    const _grid = {};
-    drag._grid = _grid;
-    _grid.gridWidth = 15;
-    _grid.gridHeight = 15;
-    _grid.rows = Math.floor((width * 0.7) / _grid.gridWidth);
-    _grid.colums = Math.floor((height * 0.6) / _grid.gridHeight);
-    _grid.$el = document.createElement('canvas');
-    _grid.width = width * 0.7;
-    _grid.height = height * 0.6;
-    _grid.$el.width = _grid.width;
-    _grid.$el.height = _grid.height;
-    _grid.$el.style.background = '#FFFFFF';
-    drawLine(drag);
-    // 绘制线
+// 格式化网格
+function normalizeGrid(drag, options) {
+    const { showGrid = true } = options;
+    drag.showGrid = showGrid;
+    if (!showGrid)
+        return; // 不需要grid
+    const { gridHeight = 15, gridWidth = 15 } = options;
+    const { width, height } = drag._canvas;
+    const $el = document.createElement('canvas');
+    drag._grid = {
+        $el,
+        $ctx: $el.getContext('2d'),
+        gridHeight,
+        gridWidth,
+        width,
+        height,
+        draw: drawGrid
+    };
+}
+// 挂载
+function mount(drag) {
+    // 挂载画布
+    // @ts-ignore
+    drag._canvas.$el.style.css({
+        with: `${drag._canvas.width}px`,
+        height: `${drag._canvas.height}px`,
+        zIndex: 0,
+        position: 'relative'
+    });
+    drag._container.$el.appendChild(drag._canvas.$el);
+    drag._grid.draw(drag._grid);
+    //
     drag._container.$el.appendChild(drag._grid.$el);
 }
-function drawLine(drag) {
-    const { gridWidth, gridHeight, width, height } = drag._grid;
-    // 计算出当前行列数
-    const rows = Math.floor(height / gridWidth);
-    const colmuns = Math.floor(width / gridHeight);
-    const ctx = drag._grid.$el.getContext('2d');
-    [...Array(rows + 1)].forEach((item, index) => {
-        ctx.beginPath();
-        const y = index * gridHeight + 0.5;
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = index % 4 === 0 ? '#e6e6e6' : '#f1f1f1';
-        ctx.stroke();
-        ctx.closePath();
+// 计算份儿
+const calcCount = (unitWidth, totalWidth) => Math.ceil(totalWidth / unitWidth);
+// 绘制网格线
+function drawGrid(grid) {
+    // @ts-ignore
+    console.log(grid);
+    const { width, height, gridWidth, gridHeight, $ctx } = grid;
+    const rows = calcCount(gridHeight, height);
+    const columns = calcCount(gridWidth, width);
+    grid.$el.width = width;
+    grid.$el.height = height;
+    grid.$el.style.backgroundColor = '#FFFFFF';
+    [...Array(rows)].forEach((_, index) => {
+        $ctx.beginPath();
+        $ctx.strokeStyle = index % 4 === 0 ? '#cccccc' : '#e6e6e6';
+        const y = index * gridHeight;
+        $ctx.moveTo(0, y + 0.5); // +0.5处理canvas模糊问题
+        $ctx.lineTo(width, y);
+        $ctx.stroke();
+        $ctx.closePath();
     });
-    [...Array(colmuns + 1)].forEach((item, index) => {
-        const x = index * gridWidth + 0.5;
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = index % 4 === 0 ? '#e6e6e6' : '#f1f1f1';
-        ctx.stroke();
-        ctx.closePath();
-    });
-}
-function bindEvent($el) {
-    $el.addEventListener('mousedown', (e) => {
-        console.log(e);
-    });
-    $el.addEventListener('mouseup', (e) => {
-        console.log('mouseup');
-    });
-    // $el.addEventListener('mousemove', (e) => {
-    //   console.log('mousemove')
-    // })
-    $el.addEventListener('click', (e) => {
-        console.log('click');
-    });
-}
-// 创建模块
-function createRect(drag, list = []) {
-    list.forEach((item) => {
-        const rect = createRectInstance(item);
-        drag._container.$el.appendChild(rect.$el);
-        drag._rectMap.set(1, rect);
+    [...Array(columns)].forEach((_, index) => {
+        $ctx.beginPath();
+        $ctx.strokeStyle = index % 4 === 0 ? '#cccccc' : '#e6e6e6';
+        const x = index * gridWidth;
+        $ctx.moveTo(x + 0.5, 0); // +0.5处理canvas模糊问题
+        $ctx.lineTo(x, height);
+        $ctx.stroke();
+        $ctx.closePath();
     });
 }
 
-export { createDrag, initOptions };
+export { createDrag };
