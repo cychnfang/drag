@@ -1,11 +1,7 @@
-// export interface RectRows {
-//   $el: HTMLDivElement;
-//   id: string;
-//   x: number;
-//   y: number;
-//   width: number;
-//   height: number;
-// }
+// const isArray = (obj: any) =>
+//   Object.prototype.toString.apply(obj) === "[object Array]";
+// const getUniqueId = () =>
+//   Number(Math.random().toString().substr(3, 10) + Date.now()).toString(36);
 
 // export function createRectInstance(options: any) {
 //   const instance = {};
@@ -52,5 +48,3 @@
 
 //   return;
 // }
-
-// export function getUniqueId() {}

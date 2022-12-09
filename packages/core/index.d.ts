@@ -1,13 +1,4 @@
-interface GridPros {
-  $el: HTMLCanvasElement;
-  $ctx: CanvasRenderingContext2D
-  width: number;
-  height: number;
-  gridWidth: number;
-  gridHeight: number;
-  draw: <T extends GridPros>(grid: T) => void;
-}
-
+// drag props
 interface DragProps {
   // 容器
   _container: {
@@ -27,4 +18,18 @@ interface DragProps {
 
   _rectMap: Map;
   showGrid: boolean;
+}
+
+interface GridPros {
+    $el: HTMLCanvasElement;
+    $ctx: CanvasRenderingContext2D
+    width: number;
+    height: number;
+    gridWidth: number;
+    gridHeight: number;
+    draw: <T extends GridPros>(grid: T) => void;
+  }
+
+interface RectOptions {
+    
 }

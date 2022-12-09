@@ -76,20 +76,24 @@ function normalizeGrid(drag, options) {
 }
 // 挂载
 function mount(drag) {
-    // 挂载画布
     // @ts-ignore
-    drag._canvas.$el.style.css({
+    setCss(drag._canvas.$el, {
         with: `${drag._canvas.width}px`,
         height: `${drag._canvas.height}px`,
         zIndex: 0,
         position: 'relative'
     });
+    drag._canvas.$el.appendChild(drag._grid.$el);
     drag._container.$el.appendChild(drag._canvas.$el);
     drag._grid.draw(drag._grid);
-    //
-    drag._container.$el.appendChild(drag._grid.$el);
+    setCss(drag._grid.$el, {
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        zIndex: 1
+    });
 }
-// 计算份儿
+// 计算份额
 const calcCount = (unitWidth, totalWidth) => Math.ceil(totalWidth / unitWidth);
 // 绘制网格线
 function drawGrid(grid) {
@@ -118,6 +122,13 @@ function drawGrid(grid) {
         $ctx.lineTo(x, height);
         $ctx.stroke();
         $ctx.closePath();
+    });
+}
+// 设置样式
+function setCss(node, cssObj) {
+    Object.keys(cssObj).forEach((key) => {
+        // @ts-ignore
+        node.style[key] = cssObj[key];
     });
 }
 
