@@ -18,7 +18,8 @@ interface Drag {
 
   _rectMap: Map;
   showGrid: boolean;
-  startLoc: null | {x: number, y: number}
+  refPointLoc: null | {x: number, y: number}
+  actionInfo: {type: string, direction: string}
 }
 
 interface GridPros {

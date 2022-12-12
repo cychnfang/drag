@@ -67,7 +67,6 @@ function normalizeProps<T extends Rect>(rect: T, options: any) {
     height: `${initial.height}px`,
     top: `${initial.top}px`,
     left: `${initial.left}px`,
-    zIndex: 1,
     border: '1px solid #ddd'
   });
 }
@@ -75,6 +74,8 @@ function normalizeProps<T extends Rect>(rect: T, options: any) {
 // 设置组件遮罩
 function setCover(rect: Rect) {
   const $cover = document.createElement('div');
+  $cover.dataset.id = rect.id;
+  console.log(rect.id)
   setCss($cover, {
     position: 'absolute',
     zIndex: 999,
