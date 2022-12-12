@@ -6,4 +6,5 @@ interface Rect {
   top: number;
   width: number;
   height: number;
+  checked: boolean
 }
