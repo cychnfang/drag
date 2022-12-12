@@ -1,5 +1,5 @@
 // drag props
-interface DragProps {
+interface Drag {
   // 容器
   _container: {
     $el: Element;

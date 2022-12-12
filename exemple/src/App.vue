@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getCurrentInstance, onMounted, ref, ComponentInternalInstance, toRaw } from 'vue';
-import { createDrag } from '../../dist/bundle.js';
+import { createDrag, createShap } from '../../dist/bundle.js';
 
 let drag: any;
 onMounted(() => {
@@ -11,7 +11,7 @@ onMounted(() => {
 
 const ipt = ref();
 const handleAdd = () => {
-
+  createShap({el: ipt.value})
 };
 </script>
 
@@ -21,7 +21,7 @@ const handleAdd = () => {
       <el-button @click="handleAdd" :draggable="true">新增方块</el-button>
     </div>
     <div class="page-aside">
-      <div  id="ipt" class="item">
+      <div ref="ipt" class="item"> 
         <el-input placeholder="我是输入框" ref="ipt"></el-input>
       </div>
     </div>
