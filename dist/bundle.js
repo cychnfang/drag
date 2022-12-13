@@ -385,33 +385,100 @@ function handleComponentsResize(e, rects) {
         const changeX = endX - startX;
         const changeY = endY - startY;
         switch (drag.actionInfo.direction) {
+            case DIRECTIONS.TOP:
+                if (changeY <= 0) {
+                    // top减小 height 增大
+                    const oTop = rect.top;
+                    rect.top = rect.top + changeY < 0 ? 0 : rect.top + changeY;
+                    rect.height = rect.height + oTop - rect.top;
+                }
+                else {
+                    // top增大 height减小
+                    const oHeight = rect.height;
+                    rect.height = rect.height - changeY < 30 ? 30 : rect.height - changeY;
+                    rect.top = rect.top + oHeight - rect.height;
+                }
+                break;
+            case DIRECTIONS.RIGHT_TOP:
+                rect.width = rect.width + changeX < 30 ? 30 : rect.width + changeX;
+                if (changeY <= 0) {
+                    // top减小 height 增大
+                    const oTop = rect.top;
+                    rect.top = rect.top + changeY < 0 ? 0 : rect.top + changeY;
+                    rect.height = rect.height + oTop - rect.top;
+                }
+                else {
+                    // top增大 height减小
+                    const oHeight = rect.height;
+                    rect.height = rect.height - changeY < 30 ? 30 : rect.height - changeY;
+                    rect.top = rect.top + oHeight - rect.height;
+                }
+                break;
             case DIRECTIONS.RIGHT:
                 rect.width = rect.width + changeX < 30 ? 30 : rect.width + changeX;
-                break;
-            case DIRECTIONS.BOTTOM:
-                rect.height = rect.height + changeY < 30 ? 30 : rect.height + changeY;
                 break;
             case DIRECTIONS.RIGHT_BOTTOM:
                 rect.width = rect.width + changeX < 30 ? 30 : rect.width + changeX;
                 rect.height = rect.height + changeY < 30 ? 30 : rect.height + changeY;
                 break;
-            case DIRECTIONS.RIGHT_TOP:
-                rect.width = rect.width + changeX < 30 ? 30 : rect.width + changeX;
-                rect.height = rect.height - changeY < 30 ? 30 : rect.height - changeY;
-                if (rect.height > 30) {
-                    rect.top = rect.top + changeY < 0 ? 0 : rect.top + changeY;
+            case DIRECTIONS.BOTTOM:
+                rect.height = rect.height + changeY < 30 ? 30 : rect.height + changeY;
+                break;
+            case DIRECTIONS.LEFT_BOTTOM:
+                rect.height = rect.height + changeY < 30 ? 30 : rect.height + changeY;
+                if (changeX < 0) {
+                    // left 减小 width增大
+                    const oLeft = rect.left;
+                    rect.left = rect.left + changeX < 0 ? 0 : rect.left + changeX;
+                    rect.width = rect.width + oLeft - rect.left;
                 }
-            case DIRECTIONS.TOP:
-                if (rect.height > 30) {
-                    rect.height = rect.height - changeY < 30 ? 30 : rect.height - changeY;
-                    rect.top = rect.top + changeY < 0 ? 0 : rect.top + changeY;
+                else {
+                    // left 增大 width减小
+                    const oWidth = rect.width;
+                    rect.width = rect.width - changeX < 30 ? 30 : rect.width - changeX;
+                    rect.left = rect.left + oWidth - rect.width;
                 }
                 break;
             case DIRECTIONS.LEFT:
-                if (rect.width > 30 || rect.width <= 30 && changeX < 0) {
-                    rect.width = rect.width - changeX < 30 ? 30 : rect.width - changeX;
+                if (changeX < 0) {
+                    // left 减小 width增大
+                    const oLeft = rect.left;
                     rect.left = rect.left + changeX < 0 ? 0 : rect.left + changeX;
+                    rect.width = rect.width + oLeft - rect.left;
                 }
+                else {
+                    // left 增大 width减小
+                    const oWidth = rect.width;
+                    rect.width = rect.width - changeX < 30 ? 30 : rect.width - changeX;
+                    rect.left = rect.left + oWidth - rect.width;
+                }
+                break;
+            case DIRECTIONS.LEFT_TOP:
+                if (changeX < 0) {
+                    // left 减小 width增大
+                    const oLeft = rect.left;
+                    rect.left = rect.left + changeX < 0 ? 0 : rect.left + changeX;
+                    rect.width = rect.width + oLeft - rect.left;
+                }
+                else {
+                    // left 增大 width减小
+                    const oWidth = rect.width;
+                    rect.width = rect.width - changeX < 30 ? 30 : rect.width - changeX;
+                    rect.left = rect.left + oWidth - rect.width;
+                }
+                if (changeY < 0) {
+                    // top减小 height 增大
+                    const oTop = rect.top;
+                    rect.top = rect.top + changeY < 0 ? 0 : rect.top + changeY;
+                    rect.height = rect.height + oTop - rect.top;
+                }
+                else {
+                    // top增大 height减小
+                    const oHeight = rect.height;
+                    rect.height = rect.height - changeY < 30 ? 30 : rect.height - changeY;
+                    rect.top = rect.top + oHeight - rect.height;
+                }
+                break;
         }
     });
 }
