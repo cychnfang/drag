@@ -1,4 +1,5 @@
 import { creatRect } from "../../rect/src/index";
+import { EventCenter } from "./event";
 
 // 是否是字符串
 const isString = (str: any) => typeof str === "string";
@@ -77,8 +78,11 @@ function init<T extends Drag>(drag: T, options: any) {
   // 格式化网格
   normalizeGrid(drag, options);
 
-  // 绑定事件
+  // 绑定DOM事件
   bindEvent(drag._container.$el);
+
+  // 绑定事件中心
+  bindEventCenter(drag);
 }
 
 // 格式化容器
@@ -150,16 +154,19 @@ function handleClick(e: MouseEvent) {}
 
 // 点击事件
 function handleMouseDown(e: MouseEvent) {
-  const matchedComponents = getMatchedComponentsById(e);
+  const matchedComponent = getMatchedComponentsById(e);
   // 点击未命中rect
-  if (matchedComponents.length === 0) return;
+  if (!matchedComponent) return;
 
   // 更新基准点信息(位置)
   updateRefPointLoc(e);
   // 更新操作方式
-  updateActionType(matchedComponents[0], e);
+  updateActionType(matchedComponent, e);
   // 更新组件状态
-  updateComponentsStatus(matchedComponents);
+  updateComponentsStatus([matchedComponent]);
+  // emit 组件信息
+  const { left, top, width, height } = matchedComponent;
+  drag.emit("click", { left, top, width, height, type: "input" });
 }
 
 // 点击事件
@@ -421,6 +428,7 @@ function handleComponentsResize(e: MouseEvent, rects: Rect[]) {
 
 // 更新鼠标样式
 function updatePointStyle(e: MouseEvent) {
+  if (drag.refPointLoc) return;
   const currentRect = getMatchedComponentsByLoc(e.x, e.y)[0] || null;
   const cursorStyle = CURSOR_STYLE_MAP[getDirection(currentRect, e)];
   setCss(drag._container.$el, {
@@ -539,8 +547,23 @@ function getMatchedComponentsByLoc(x: number, y: number) {
 }
 
 // 获取命中组件by data-id
-function getMatchedComponentsById(e: MouseEvent): Rect[] {
+function getMatchedComponentsById(e: MouseEvent): Rect | null {
   const { id = null } = (e.target as HTMLButtonElement)?.dataset;
-  if (!id) return [];
-  return [drag._rectMap.get(id)];
+  if (!id) return null;
+  return drag._rectMap.get(id);
+}
+
+// 绑定事件
+function bindEventCenter(drag: Drag) {
+  const eventCenter = new EventCenter();
+  drag.on = (type, cb) => eventCenter.on(type, cb);
+  drag.off = (type, cb) => eventCenter.off(type, cb);
+  drag.emit = (type, data) => eventCenter.emit(type, data);
+}
+
+
+// 碰撞判断
+function isBouding(): boolean {
+  
+  
 }

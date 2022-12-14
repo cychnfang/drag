@@ -1,17 +1,27 @@
 <script setup lang="ts">
-import { getCurrentInstance, onMounted, ref, ComponentInternalInstance, toRaw } from 'vue';
-import { createDrag, createShap } from '../../dist/bundle.js';
+import {
+  getCurrentInstance,
+  onMounted,
+  ref,
+  ComponentInternalInstance,
+  toRaw,
+} from "vue";
+import { createDrag, createShap } from "../../dist/bundle.js";
 
 let drag: any;
 onMounted(() => {
   drag = createDrag({
-    el: '#drag-container'
+    el: "#drag-container",
+  });
+
+  drag.on("click", (data: any) => {
+    console.log(data, -1231);
   });
 });
 
 const ipt = ref();
 const handleAdd = () => {
-  createShap({el: ipt.value})
+  createShap({ el: ipt.value });
 };
 </script>
 
@@ -21,7 +31,7 @@ const handleAdd = () => {
       <el-button @click="handleAdd" :draggable="true">新增方块</el-button>
     </div>
     <div class="page-aside">
-      <div ref="ipt" class="item"> 
+      <div ref="ipt" class="item">
         <el-input placeholder="我是输入框" ref="ipt"></el-input>
       </div>
     </div>
@@ -37,8 +47,8 @@ const handleAdd = () => {
   grid-template-columns: 400px 1fr;
   grid-template-rows: 80px 1fr;
   grid-template-areas:
-    'header header'
-    'aside main';
+    "header header"
+    "aside main";
 
   &-header {
     grid-area: header;
@@ -56,7 +66,7 @@ const handleAdd = () => {
   &-main {
     grid-area: main;
     border: 1px solid #ddd;
-    background: url('./assets/canvas_bg.jpeg') repeat;
+    background: url("./assets/canvas_bg.jpeg") repeat;
   }
 }
 </style>

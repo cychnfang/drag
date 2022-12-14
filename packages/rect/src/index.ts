@@ -6,7 +6,11 @@ const isDomNode = (node: any) => node instanceof Element;
 const getUniqueId = () => Math.random().toString(36) + Date.now().toString(36);
 
 export const creatRect = (options: any = {}) => {
-  const rect: any = {};
+  const rect: any = {
+    id: getUniqueId(),
+    checked: false,
+    layout: 1
+  };
   normalizeProps(rect, options);
   // 设置遮罩
   setCover(rect);
@@ -34,9 +38,7 @@ function normalizeProps<T extends Rect>(rect: T, options: any) {
   const { el = null, top = 0, left = 0, width = 150, height = 30 } = options;
 
   const initial: any = {
-    id: getUniqueId(),
     $el: document.createElement('div'),
-    checked: false,
     width,
     height,
     top,
@@ -75,7 +77,6 @@ function normalizeProps<T extends Rect>(rect: T, options: any) {
 function setCover(rect: Rect) {
   const $cover = document.createElement('div');
   $cover.dataset.id = rect.id;
-  console.log(rect.id)
   setCss($cover, {
     position: 'absolute',
     zIndex: 999,

@@ -4,7 +4,11 @@ const isDomNode$1 = (node) => node instanceof Element;
 // 生成唯一id
 const getUniqueId = () => Math.random().toString(36) + Date.now().toString(36);
 const creatRect = (options = {}) => {
-    const rect = {};
+    const rect = {
+        id: getUniqueId(),
+        checked: false,
+        layout: 1
+    };
     normalizeProps(rect, options);
     // 设置遮罩
     setCover(rect);
@@ -26,9 +30,7 @@ const creatRect = (options = {}) => {
 function normalizeProps(rect, options) {
     const { el = null, top = 0, left = 0, width = 150, height = 30 } = options;
     const initial = {
-        id: getUniqueId(),
         $el: document.createElement('div'),
-        checked: false,
         width,
         height,
         top,
@@ -63,7 +65,6 @@ function normalizeProps(rect, options) {
 function setCover(rect) {
     const $cover = document.createElement('div');
     $cover.dataset.id = rect.id;
-    console.log(rect.id);
     setCss$1($cover, {
         position: 'absolute',
         zIndex: 999,
@@ -95,6 +96,27 @@ function updateStyle(target, prop, value) {
             setCss$1(target.$el, {
                 border: `1px solid ${value ? 'skyblue' : '#ddd'}`
             });
+    }
+}
+
+class EventCenter {
+    constructor() {
+        this.eventMap = new Map();
+    }
+    on(type, cb) {
+        const queue = this.eventMap.get(type);
+        queue || this.eventMap.set(type, [cb]);
+        queue && queue.push(cb);
+    }
+    off(type, cb) {
+        const queueas = this.eventMap.get(type) || [];
+        cb || this.eventMap.set(type, []);
+        cb &&
+            this.eventMap.set(type, queueas.filter((item) => item === cb));
+    }
+    emit(type, data) {
+        // @ts-ignore
+        (this.eventMap.get(type) || []).forEach((cb) => cb(data));
     }
 }
 
@@ -167,8 +189,10 @@ function init(drag, options) {
     normalizeCanvas(drag);
     // 格式化网格
     normalizeGrid(drag, options);
-    // 绑定事件
+    // 绑定DOM事件
     bindEvent(drag._container.$el);
+    // 绑定事件中心
+    bindEventCenter(drag);
 }
 // 格式化容器
 function normalizeContainer(drag, options) {
@@ -232,16 +256,19 @@ function bindEvent(node) {
 function handleClick(e) { }
 // 点击事件
 function handleMouseDown(e) {
-    const matchedComponents = getMatchedComponentsById(e);
+    const matchedComponent = getMatchedComponentsById(e);
     // 点击未命中rect
-    if (matchedComponents.length === 0)
+    if (!matchedComponent)
         return;
     // 更新基准点信息(位置)
     updateRefPointLoc(e);
     // 更新操作方式
-    updateActionType(matchedComponents[0], e);
+    updateActionType(matchedComponent, e);
     // 更新组件状态
-    updateComponentsStatus(matchedComponents);
+    updateComponentsStatus([matchedComponent]);
+    // emit 组件信息
+    const { left, top, width, height } = matchedComponent;
+    drag.emit("click", { left, top, width, height, type: "input" });
 }
 // 点击事件
 function handleMouseUp(e) {
@@ -484,6 +511,8 @@ function handleComponentsResize(e, rects) {
 }
 // 更新鼠标样式
 function updatePointStyle(e) {
+    if (drag.refPointLoc)
+        return;
     const currentRect = getMatchedComponentsByLoc(e.x, e.y)[0] || null;
     const cursorStyle = CURSOR_STYLE_MAP[getDirection(currentRect, e)];
     setCss(drag._container.$el, {
@@ -578,8 +607,16 @@ function getMatchedComponentsById(e) {
     var _a;
     const { id = null } = (_a = e.target) === null || _a === void 0 ? void 0 : _a.dataset;
     if (!id)
-        return [];
-    return [drag._rectMap.get(id)];
+        return null;
+    return drag._rectMap.get(id);
 }
+// 绑定事件
+function bindEventCenter(drag) {
+    const eventCenter = new EventCenter();
+    drag.on = (type, cb) => eventCenter.on(type, cb);
+    drag.off = (type, cb) => eventCenter.off(type, cb);
+    drag.emit = (type, data) => eventCenter.emit(type, data);
+}
+// 碰撞判断
 
 export { createDrag, createShap };

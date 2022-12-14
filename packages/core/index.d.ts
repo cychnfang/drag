@@ -18,20 +18,23 @@ interface Drag {
 
   _rectMap: Map;
   showGrid: boolean;
-  refPointLoc: null | {x: number, y: number}
-  actionInfo: {type: string, direction: string}
+  refPointLoc: null | { x: number; y: number };
+  actionInfo: { type: string; direction: string };
+
+  // function
+  on: (type: string, cb: Function) => void;
+  off: (type: string, cb: Function) => void;
+  emit: <T>(type: string, data: T) => void;
 }
 
 interface GridPros {
-    $el: HTMLCanvasElement;
-    $ctx: CanvasRenderingContext2D
-    width: number;
-    height: number;
-    gridWidth: number;
-    gridHeight: number;
-    draw: <T extends GridPros>(grid: T) => void;
-  }
-
-interface RectOptions {
-    
+  $el: HTMLCanvasElement;
+  $ctx: CanvasRenderingContext2D;
+  width: number;
+  height: number;
+  gridWidth: number;
+  gridHeight: number;
+  draw: <T extends GridPros>(grid: T) => void;
 }
+
+interface RectOptions {}
