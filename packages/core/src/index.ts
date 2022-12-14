@@ -285,14 +285,14 @@ function updateActionType(rect: Rect, e: MouseEvent) {
   };
 }
 
-// 获取选中的组件
-function getCheckedComponents() {
-  return [...drag._rectMap.values()].filter((rect) => rect.checked);
+// 根据checked状态获取选中的组件
+function getComponentsByStatus(checked: boolean = true) {
+  return [...drag._rectMap.values()].filter((rect) => rect.checked === checked);
 }
 
 // 更新位置
 function updateComponentsLoc(e: MouseEvent) {
-  const checkedComponents = getCheckedComponents();
+  const checkedComponents = getComponentsByStatus(true);
   if (checkedComponents.length === 0 || !drag.refPointLoc) return;
 
   switch (drag.actionInfo.type) {
@@ -564,6 +564,19 @@ function bindEventCenter(drag: Drag) {
 
 // 碰撞判断
 function isBouding(): boolean {
+  const checkedComponents = getComponentsByStatus();
+  const unCheckedComponents = getComponentsByStatus(false);
+
+  // 找到
+  // 如果存在碰撞拖动的组件将被挂在到最顶层
   
+
+
+  // 
+  checkedComponents.forEach(components => {
+    // 
+  })
+
   
+  return false
 }
