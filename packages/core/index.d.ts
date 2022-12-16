@@ -20,6 +20,7 @@ interface Drag {
   showGrid: boolean;
   refPointLoc: null | { x: number; y: number };
   actionInfo: { type: string; direction: string };
+  layout: number[] // 层级
 
   // function
   on: (type: string, cb: Function) => void;

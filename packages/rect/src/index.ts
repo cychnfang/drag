@@ -8,8 +8,7 @@ const getUniqueId = () => Math.random().toString(36) + Date.now().toString(36);
 export const creatRect = (options: any = {}) => {
   const rect: any = {
     id: getUniqueId(),
-    checked: false,
-    layout: 1
+    checked: false
   };
   normalizeProps(rect, options);
   // 设置遮罩
@@ -35,14 +34,15 @@ export const creatRect = (options: any = {}) => {
 
 // 初始化参数
 function normalizeProps<T extends Rect>(rect: T, options: any) {
-  const { el = null, top = 0, left = 0, width = 150, height = 30 } = options;
+  const { el = null, top = 0, left = 0, width = 150, height = 30, layout = 1 } = options;
 
   const initial: any = {
     $el: document.createElement('div'),
     width,
     height,
     top,
-    left
+    left,
+    layout
   };
 
   if (isDomNode(el)) {

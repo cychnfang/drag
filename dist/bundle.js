@@ -6,8 +6,7 @@ const getUniqueId = () => Math.random().toString(36) + Date.now().toString(36);
 const creatRect = (options = {}) => {
     const rect = {
         id: getUniqueId(),
-        checked: false,
-        layout: 1
+        checked: false
     };
     normalizeProps(rect, options);
     // 设置遮罩
@@ -28,13 +27,14 @@ const creatRect = (options = {}) => {
 };
 // 初始化参数
 function normalizeProps(rect, options) {
-    const { el = null, top = 0, left = 0, width = 150, height = 30 } = options;
+    const { el = null, top = 0, left = 0, width = 150, height = 30, layout = 1 } = options;
     const initial = {
         $el: document.createElement('div'),
         width,
         height,
         top,
-        left
+        left,
+        layout
     };
     if (isDomNode$1(el)) {
         const { width, height } = el.getBoundingClientRect();
@@ -171,7 +171,8 @@ const ACTION_TYPE_MAP = {
 let drag;
 const createDrag = (options = {}) => {
     drag = {
-        _rectMap: new Map(), // 物料存储区
+        _rectMap: new Map(),
+        layout: [1],
     };
     init(drag, options);
     // 挂载节点
@@ -248,12 +249,15 @@ function normalizeGrid(drag, options) {
 // 绑定事件
 function bindEvent(node) {
     node.addEventListener("mousedown", (e) => handleMouseDown(e));
-    node.addEventListener("mouseup", (e) => handleMouseUp(e));
-    node.addEventListener("click", (e) => handleClick);
+    node.addEventListener("mouseup", (e) => handleMouseUp());
+    node.addEventListener("click", (e) => handleClick(e));
     node.addEventListener("mousemove", (e) => handleMouseMove(e));
 }
 // 点击事件 down -> up -> click
-function handleClick(e) { }
+function handleClick(e) {
+    // 置空点击位置
+    updateRefPointLoc(e, "reset");
+}
 // 点击事件
 function handleMouseDown(e) {
     const matchedComponent = getMatchedComponentsById(e);
@@ -272,8 +276,8 @@ function handleMouseDown(e) {
 }
 // 点击事件
 function handleMouseUp(e) {
-    // 置空点击位置
-    updateRefPointLoc(e, "reset");
+    // 更新层级
+    updateLayout();
 }
 // 鼠标移动
 function handleMouseMove(e) {
@@ -340,14 +344,6 @@ function setCss(node, cssObj) {
         node.style[key] = cssObj[key];
     });
 }
-// 创建方块
-const createShap = (options) => {
-    const rect = creatRect(options);
-    const { id, $el } = rect;
-    setCss($el, { zIndex: drag._rectMap.size + 1 });
-    drag._rectMap.set(id, rect);
-    drag._canvas.$el.appendChild($el);
-};
 // 更新参考点位置信息
 function updateRefPointLoc(e, type) {
     if (type === "reset") {
@@ -369,13 +365,13 @@ function updateActionType(rect, e) {
         type: ACTION_TYPE_MAP[direction],
     };
 }
-// 获取选中的组件
-function getCheckedComponents() {
-    return [...drag._rectMap.values()].filter((rect) => rect.checked);
+// 根据checked状态获取选中的组件
+function getComponentsByStatus(checked = true) {
+    return [...drag._rectMap.values()].filter((rect) => rect.checked === checked);
 }
 // 更新位置
 function updateComponentsLoc(e) {
-    const checkedComponents = getCheckedComponents();
+    const checkedComponents = getComponentsByStatus(true);
     if (checkedComponents.length === 0 || !drag.refPointLoc)
         return;
     switch (drag.actionInfo.type) {
@@ -618,5 +614,50 @@ function bindEventCenter(drag) {
     drag.emit = (type, data) => eventCenter.emit(type, data);
 }
 // 碰撞判断
+function getCollidingComponents() {
+    const checkedComponents = getComponentsByStatus();
+    const unCheckedComponents = getComponentsByStatus(false);
+    const collodingComponents = [];
+    checkedComponents.forEach((source) => {
+        collodingComponents.push(...unCheckedComponents.filter((target) => isColliding(source, target)));
+    });
+    return collodingComponents;
+}
+// 是否碰撞
+function isColliding(source, target) {
+    const { width: sWidth, height: sHeight, left: sLeft, top: sTop } = source;
+    const { width: tWidth, height: tHeight, left: tLeft, top: tTop } = target;
+    return !(sTop + sHeight < tTop ||
+        sTop > tTop + tHeight ||
+        sLeft + sWidth < tLeft ||
+        sLeft > tLeft + tWidth);
+}
+// 更新层级
+function updateLayout() {
+    // 找到所有碰撞的components
+    // 找到最顶层的components
+    // 将移动组件被挂在到最顶层
+    const collidingComponents = getCollidingComponents();
+    const unCheckedComponents = getComponentsByStatus(false);
+    Math.max.apply(Math, unCheckedComponents.map((component) => component.layout));
+    if (collidingComponents.length === 0) ;
+    // 0. 推到最顶层
+    // 1. 所有模块重排堆叠顺序
+    //  1.1 所有模块按堆叠顺序升序排序
+    //  1.2 for 当前所有模块
+    //       获取层级小于 当前循环项层级的所有模块
+    //       将当前循环项 与 小于当前循环项层级的所有模块 进行碰撞判断
+    //       如果无碰撞项 则 当前循环项 层级为 1
+    //       如果有碰撞项 则 当前循环项 层级为 碰撞项中最高层级 + 1
+}
+// 创建方块
+const createShap = (options) => {
+    // 获取层级
+    const rect = creatRect(options);
+    const { id, $el } = rect;
+    setCss($el, { zIndex: drag._rectMap.size + 1 });
+    drag._rectMap.set(id, rect);
+    drag._canvas.$el.appendChild($el);
+};
 
 export { createDrag, createShap };
