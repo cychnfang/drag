@@ -16,11 +16,13 @@ interface Drag {
   // 网格
   _grid: GridPros;
 
-  _rectMap: Map;
+  _componentsMap: Map;
   showGrid: boolean;
   refPointLoc: null | { x: number; y: number };
   actionInfo: { type: string; direction: string };
-  layout: number[] // 层级
+  layouts: number[] // 层级
+  _underControl: boolean
+  _canMove: boolean
 
   // function
   on: (type: string, cb: Function) => void;

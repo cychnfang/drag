@@ -8,4 +8,5 @@ interface Rect {
   height: number;
   checked: boolean;
   layout: number;
+  sort: number
 }

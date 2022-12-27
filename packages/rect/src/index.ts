@@ -4,6 +4,10 @@ const isString = (str: any) => typeof str === 'string';
 const isDomNode = (node: any) => node instanceof Element;
 // 生成唯一id
 const getUniqueId = () => Math.random().toString(36) + Date.now().toString(36);
+let index = 0
+
+const DEFAULT_HEIGHT = 120
+const DEFAULT_WIDTH = 120
 
 export const creatRect = (options: any = {}) => {
   const rect: any = {
@@ -14,10 +18,8 @@ export const creatRect = (options: any = {}) => {
   // 设置遮罩
   setCover(rect);
 
-  // 挂载
-  rect.$el.appendChild(rect.$component);
-
   const proxy = new Proxy(rect, {
+    // sethandler
     set(target, prop, value, receiver) {
       target[prop] = value;
       updateStyle(target, prop, value);
@@ -34,23 +36,23 @@ export const creatRect = (options: any = {}) => {
 
 // 初始化参数
 function normalizeProps<T extends Rect>(rect: T, options: any) {
-  const { el = null, top = 0, left = 0, width = 150, height = 30, layout = 1 } = options;
-
+  const { el = null, top = 0, left = 0, width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT, layout = 0, sort, backgroundColor } = options;
   const initial: any = {
     $el: document.createElement('div'),
     width,
     height,
     top,
     left,
-    layout
+    layout,
+    sort
   };
-
   if (isDomNode(el)) {
     const { width, height } = el.getBoundingClientRect();
-    const $component = el.cloneNode(true);
+    const $component = el;
     initial.$component = $component;
     initial.width = width;
     initial.height = height;
+    initial.$el.appendChild($component);
     setCss($component, {
       position: 'absolute',
       width: '100%',
@@ -58,9 +60,6 @@ function normalizeProps<T extends Rect>(rect: T, options: any) {
       zIndex: -1,
       disabled: true
     });
-    initial.$el.appendChild($component);
-
-    Object.assign(rect, initial);
   }
 
   setCss(initial.$el, {
@@ -69,8 +68,14 @@ function normalizeProps<T extends Rect>(rect: T, options: any) {
     height: `${initial.height}px`,
     top: `${initial.top}px`,
     left: `${initial.left}px`,
-    border: '1px solid #ddd'
+    border: '1px solid #ddd',
+    backgroundColor,
+    opcity: 1,
+    overflow: 'hidden'
   });
+
+  Object.assign(rect, initial);
+
 }
 
 // 设置组件遮罩
@@ -82,7 +87,9 @@ function setCover(rect: Rect) {
     zIndex: 999,
     width: '100%',
     height: '100%',
-    opcity: 0
+    opcity: 0,
+    top: 0,
+    left: 0
   });
 
   rect.$el.appendChild($cover);
@@ -108,8 +115,19 @@ function updateStyle(target: any, prop: string | symbol, value: number) {
       });
       break;
     case 'checked':
+    case 'layout':
       setCss(target.$el, {
-        border: `1px solid ${value ? 'skyblue' : '#ddd'}`
+        border: `1px solid ${value ? 'skyblue' : '#ddd'}`,
+        zIndex: target.checked ? target.layout + 999 + target.sort : target.layout + target.sort,
+        opacity: target.checked ? .8 : 1
       });
+      break;
   }
+}
+
+// 属性设置处理函数
+function sethandler(target: any, prop: string, value: any, receiver: any) {
+  target[prop] = value;
+
+  return receiver
 }

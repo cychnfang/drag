@@ -1,8 +1,8 @@
-import { creatRect } from "../../rect/src/index";
-import { EventCenter } from "./event";
+import { creatRect } from '../../rect/src/index';
+import { EventCenter } from './event';
 
 // 是否是字符串
-const isString = (str: any) => typeof str === "string";
+const isString = (str: any) => typeof str === 'string';
 // 是否是DOM节点
 const isDomNode = (node: any) => node instanceof Element;
 
@@ -10,54 +10,54 @@ const isDomNode = (node: any) => node instanceof Element;
 const SCOPE = 10;
 
 enum DIRECTIONS {
-  TOP = "top",
-  RIGHT_TOP = "right_top",
-  RIGHT = "right",
-  RIGHT_BOTTOM = "right_bottom",
-  BOTTOM = "bottom",
-  LEFT_BOTTOM = "left_bottom",
-  LEFT = "left",
-  LEFT_TOP = "left_top",
-  MIDDLE = "middle",
-  DEFAULT = "default",
+  TOP = 'top',
+  RIGHT_TOP = 'right_top',
+  RIGHT = 'right',
+  RIGHT_BOTTOM = 'right_bottom',
+  BOTTOM = 'bottom',
+  LEFT_BOTTOM = 'left_bottom',
+  LEFT = 'left',
+  LEFT_TOP = 'left_top',
+  MIDDLE = 'middle',
+  DEFAULT = 'default'
 }
 
 const CURSOR_STYLE_MAP = {
-  [DIRECTIONS.TOP]: "ns-resize",
-  [DIRECTIONS.RIGHT_TOP]: "nesw-resize",
-  [DIRECTIONS.RIGHT]: "ew-resize",
-  [DIRECTIONS.RIGHT_BOTTOM]: "nwse-resize",
-  [DIRECTIONS.BOTTOM]: "ns-resize",
-  [DIRECTIONS.LEFT_BOTTOM]: "nesw-resize",
-  [DIRECTIONS.LEFT]: "ew-resize",
-  [DIRECTIONS.LEFT_TOP]: "nwse-resize",
-  [DIRECTIONS.DEFAULT]: "default",
-  [DIRECTIONS.MIDDLE]: "move",
+  [DIRECTIONS.TOP]: 'ns-resize',
+  [DIRECTIONS.RIGHT_TOP]: 'nesw-resize',
+  [DIRECTIONS.RIGHT]: 'ew-resize',
+  [DIRECTIONS.RIGHT_BOTTOM]: 'nwse-resize',
+  [DIRECTIONS.BOTTOM]: 'ns-resize',
+  [DIRECTIONS.LEFT_BOTTOM]: 'nesw-resize',
+  [DIRECTIONS.LEFT]: 'ew-resize',
+  [DIRECTIONS.LEFT_TOP]: 'nwse-resize',
+  [DIRECTIONS.DEFAULT]: 'default',
+  [DIRECTIONS.MIDDLE]: 'move'
 };
 
 enum ACTION_TYPE {
-  DRAG = "drag",
-  RESIZE = "resize",
+  DRAG = 'drag',
+  RESIZE = 'resize'
 }
 
 const ACTION_TYPE_MAP = {
-  [DIRECTIONS.TOP]: "resize",
-  [DIRECTIONS.RIGHT_TOP]: "resize",
-  [DIRECTIONS.RIGHT]: "resize",
-  [DIRECTIONS.RIGHT_BOTTOM]: "resize",
-  [DIRECTIONS.BOTTOM]: "resize",
-  [DIRECTIONS.LEFT_BOTTOM]: "resize",
-  [DIRECTIONS.LEFT]: "resize",
-  [DIRECTIONS.LEFT_TOP]: "resize",
-  [DIRECTIONS.DEFAULT]: "drag",
-  [DIRECTIONS.MIDDLE]: "drag",
+  [DIRECTIONS.TOP]: 'resize',
+  [DIRECTIONS.RIGHT_TOP]: 'resize',
+  [DIRECTIONS.RIGHT]: 'resize',
+  [DIRECTIONS.RIGHT_BOTTOM]: 'resize',
+  [DIRECTIONS.BOTTOM]: 'resize',
+  [DIRECTIONS.LEFT_BOTTOM]: 'resize',
+  [DIRECTIONS.LEFT]: 'resize',
+  [DIRECTIONS.LEFT_TOP]: 'resize',
+  [DIRECTIONS.DEFAULT]: 'drag',
+  [DIRECTIONS.MIDDLE]: 'drag'
 };
 
 let drag: any;
 export const createDrag = (options: any = {}) => {
   drag = {
-    _rectMap: new Map(), // 物料存储区
-    layout: [1],
+    _componentsMap: new Map(), // 物料存储区
+    layout: [1]
   };
 
   init(drag, options);
@@ -99,7 +99,7 @@ function normalizeContainer<T extends Drag>(drag: T, options: any) {
   if (isDomNode(options.el)) $el = el;
 
   if (!$el) {
-    console.warn("请传入dom节点，或者id选择器");
+    console.warn('请传入dom节点，或者id选择器');
     return;
   }
 
@@ -108,7 +108,7 @@ function normalizeContainer<T extends Drag>(drag: T, options: any) {
   drag._container = {
     $el,
     width,
-    height,
+    height
   };
 }
 
@@ -116,9 +116,9 @@ function normalizeContainer<T extends Drag>(drag: T, options: any) {
 function normalizeCanvas<T extends Drag>(drag: T) {
   const { width, height } = drag._container;
   drag._canvas = {
-    $el: document.createElement("div"),
+    $el: document.createElement('div'),
     width,
-    height,
+    height
   };
 }
 
@@ -130,53 +130,64 @@ function normalizeGrid<T extends Drag>(drag: T, options: any) {
   if (!showGrid) return; // 不需要grid
   const { gridHeight = 15, gridWidth = 15 } = options;
   const { width, height } = drag._canvas;
-  const $el = document.createElement("canvas");
+  const $el = document.createElement('canvas');
   drag._grid = {
     $el,
-    $ctx: $el.getContext("2d") as CanvasRenderingContext2D,
+    $ctx: $el.getContext('2d') as CanvasRenderingContext2D,
     gridHeight,
     gridWidth,
     width,
     height,
-    draw: drawGrid,
+    draw: drawGrid
   };
 }
 
 // 绑定事件
 function bindEvent(node: Element) {
-  node.addEventListener("mousedown", (e: any) => handleMouseDown(e));
-  node.addEventListener("mouseup", (e: any) => handleMouseUp(e));
-  node.addEventListener("click", (e: any) => handleClick(e));
-  node.addEventListener("mousemove", (e: any) => handleMouseMove(e));
+  node.addEventListener('mousedown', (e: any) => handleMouseDown(e));
+  node.addEventListener('mouseup', (e: any) => handleMouseUp(e));
+  node.addEventListener('click', (e: any) => handleClick(e));
+  node.addEventListener('mousemove', (e: any) => handleMouseMove(e));
+  node.addEventListener('contextmenu', (e: any) => e.preventDefault());
+  document.addEventListener('keydown', (e: any) => handleKeyDown(e));
+  document.addEventListener('keyup', (e: any) => handleKeyUp(e));
 }
 
 // 点击事件 down -> up -> click
 function handleClick(e: MouseEvent) {
+  console.log('handleClick');
+
   // 置空点击位置
-  updateRefPointLoc(e, "reset");
+  updateRefPointLoc(e, 'reset');
 }
 
 // 点击事件
 function handleMouseDown(e: MouseEvent) {
   const matchedComponent = getMatchedComponentsById(e);
+  drag._canMove = !!matchedComponent;
   // 点击未命中rect
-  if (!matchedComponent) return;
+  if (!matchedComponent) {
+    updateComponentsStatus();
+    return;
+  }
 
   // 更新基准点信息(位置)
   updateRefPointLoc(e);
   // 更新操作方式
   updateActionType(matchedComponent, e);
   // 更新组件状态
-  updateComponentsStatus([matchedComponent]);
+  updateComponentsStatus([matchedComponent], true);
+  // 更新选中方框
+  updateComponentsRect()
   // emit 组件信息
   const { left, top, width, height } = matchedComponent;
-  drag.emit("click", { left, top, width, height, type: "input" });
+  drag.emit('click', { left, top, width, height, type: 'input' });
 }
 
 // 点击事件
 function handleMouseUp(e: MouseEvent) {
-  // 更新层级
-  updateLayout();
+  console.log('handleMouseUp');
+  drag._canMove = false;
 }
 
 // 鼠标移动
@@ -187,23 +198,33 @@ function handleMouseMove(e: MouseEvent) {
   updateComponentsLoc(e);
 }
 
+// 键盘点击
+function handleKeyDown(e: KeyboardEvent) {
+  drag._underControl = e.key === 'Control';
+}
+
+// 键盘松开事件
+function handleKeyUp(e: KeyboardEvent) {
+  drag._underControl = false;
+}
+
 // 挂载
 function mount(drag: Drag) {
   setCss(drag._container.$el, {
-    overflow: "auto",
+    overflow: 'auto'
   });
   setCss(drag._canvas.$el, {
     with: `${drag._canvas.width + 200}px`,
     height: `${drag._canvas.height + 200}px`,
     zIndex: 0,
-    position: "relative",
+    position: 'relative'
   });
 
   setCss(drag._grid.$el, {
-    position: "absolute",
+    position: 'absolute',
     left: 0,
     top: 0,
-    zIndex: 1,
+    zIndex: 1
   });
 
   drag._canvas.$el.appendChild(drag._grid.$el);
@@ -212,8 +233,7 @@ function mount(drag: Drag) {
 }
 
 // 计算份额
-const calcCount = (unitWidth: number, totalWidth: number): number =>
-  Math.ceil(totalWidth / unitWidth);
+const calcCount = (unitWidth: number, totalWidth: number): number => Math.ceil(totalWidth / unitWidth);
 
 // 绘制网格线
 function drawGrid(grid: GridPros) {
@@ -224,12 +244,12 @@ function drawGrid(grid: GridPros) {
 
   grid.$el.width = width;
   grid.$el.height = height;
-  grid.$el.style.backgroundColor = "#FFFFFF";
+  grid.$el.style.backgroundColor = '#FFFFFF';
 
   [...Array(rows)].forEach((_, index) => {
     $ctx.beginPath();
 
-    $ctx.strokeStyle = index % 4 === 0 ? "#e6e6e6" : "#f1f1f1";
+    $ctx.strokeStyle = index % 4 === 0 ? '#e6e6e6' : '#f1f1f1';
     const y = index * gridHeight;
     $ctx.moveTo(0, y + 0.5); // +0.5处理canvas模糊问题
     $ctx.lineTo(width, y);
@@ -239,7 +259,7 @@ function drawGrid(grid: GridPros) {
 
   [...Array(columns)].forEach((_, index) => {
     $ctx.beginPath();
-    $ctx.strokeStyle = index % 4 === 0 ? "#e6e6e6" : "#f1f1f1";
+    $ctx.strokeStyle = index % 4 === 0 ? '#e6e6e6' : '#f1f1f1';
     const x = index * gridWidth;
     $ctx.moveTo(x + 0.5, 0); // +0.5处理canvas模糊问题
     $ctx.lineTo(x, height);
@@ -257,7 +277,7 @@ function setCss(node: Element, cssObj: any) {
 }
 // 更新参考点位置信息
 function updateRefPointLoc(e: MouseEvent, type?: string) {
-  if (type === "reset") {
+  if (type === 'reset') {
     drag.refPointLoc = null;
     return;
   }
@@ -265,9 +285,15 @@ function updateRefPointLoc(e: MouseEvent, type?: string) {
 }
 
 // 更新组件的选中状态
-function updateComponentsStatus(rects: Rect[]) {
-  [...drag._rectMap.values()].forEach((rect) => (rect.checked = false));
-  rects.forEach((rect) => (rect.checked = true));
+function updateComponentsStatus(rects: Rect[] = [], checked = false) {
+  const $components = [...drag._componentsMap.values()];
+
+  const isIncludes =  rects.length > 0 ? !!$components.filter(c => c.checked).find(c => c.id === rects[0].id) : false;
+  if ((!drag._underControl && !isIncludes)) {
+    $components.forEach((c) => (c.checked = false));
+  }
+
+  rects.forEach((rect) => (rect.checked = checked));
 }
 
 // 更新操作类型
@@ -275,17 +301,18 @@ function updateActionType(rect: Rect, e: MouseEvent) {
   const direction = getDirection(rect, e);
   drag.actionInfo = {
     direction,
-    type: ACTION_TYPE_MAP[direction],
+    type: ACTION_TYPE_MAP[direction]
   };
 }
 
 // 根据checked状态获取选中的组件
 function getComponentsByStatus(checked: boolean = true) {
-  return [...drag._rectMap.values()].filter((rect) => rect.checked === checked);
+  return [...drag._componentsMap.values()].filter((rect) => rect.checked === checked);
 }
 
 // 更新位置
 function updateComponentsLoc(e: MouseEvent) {
+  if (!drag._canMove) return;
   const checkedComponents = getComponentsByStatus(true);
   if (checkedComponents.length === 0 || !drag.refPointLoc) return;
 
@@ -426,7 +453,7 @@ function updatePointStyle(e: MouseEvent) {
   const currentRect = getMatchedComponentsByLoc(e.x, e.y)[0] || null;
   const cursorStyle = CURSOR_STYLE_MAP[getDirection(currentRect, e)];
   setCss(drag._container.$el, {
-    cursor: cursorStyle,
+    cursor: cursorStyle
   });
 }
 
@@ -444,22 +471,12 @@ function getDirection(rect: Rect | null, e: MouseEvent) {
     return DIRECTIONS.LEFT_TOP;
   }
   // top
-  if (
-    x >= rectX + halfWidth - SCOPE &&
-    x <= rectX + halfWidth + SCOPE &&
-    y >= rectY &&
-    y <= rectY + SCOPE
-  ) {
+  if (x >= rectX + halfWidth - SCOPE && x <= rectX + halfWidth + SCOPE && y >= rectY && y <= rectY + SCOPE) {
     return DIRECTIONS.TOP;
   }
 
   // right-top
-  if (
-    x >= rectX + width - SCOPE &&
-    x <= rectX + width &&
-    y >= rectY &&
-    y <= rectY + SCOPE
-  ) {
+  if (x >= rectX + width - SCOPE && x <= rectX + width && y >= rectY && y <= rectY + SCOPE) {
     return DIRECTIONS.RIGHT_TOP;
   }
 
@@ -470,17 +487,12 @@ function getDirection(rect: Rect | null, e: MouseEvent) {
     y >= rectY + halfHeight - SCOPE &&
     y < rectY + halfHeight + SCOPE
   ) {
-    console.log("right");
+    console.log('right');
     return DIRECTIONS.RIGHT;
   }
 
   // right-bottom
-  if (
-    x >= rectX + width - SCOPE &&
-    x <= rectX + width &&
-    y >= rectY + height - SCOPE &&
-    y <= rectY + height
-  ) {
+  if (x >= rectX + width - SCOPE && x <= rectX + width && y >= rectY + height - SCOPE && y <= rectY + height) {
     return DIRECTIONS.RIGHT_BOTTOM;
   }
 
@@ -495,34 +507,19 @@ function getDirection(rect: Rect | null, e: MouseEvent) {
   }
 
   // left-bottom
-  if (
-    x >= rectX &&
-    x <= rectX + SCOPE &&
-    y > rectY + height - SCOPE &&
-    y < rectY + height
-  ) {
+  if (x >= rectX && x <= rectX + SCOPE && y > rectY + height - SCOPE && y < rectY + height) {
     return DIRECTIONS.LEFT_BOTTOM;
   }
 
   // left
-  if (
-    x >= rectX &&
-    x <= rectX + SCOPE &&
-    y >= rectY + halfHeight - SCOPE &&
-    y <= rectY + halfHeight + SCOPE
-  ) {
-    console.log("right");
+  if (x >= rectX && x <= rectX + SCOPE && y >= rectY + halfHeight - SCOPE && y <= rectY + halfHeight + SCOPE) {
+    console.log('right');
     return DIRECTIONS.LEFT;
   }
 
   // 中间
 
-  if (
-    x > rectX + SCOPE &&
-    x < rectX + width - SCOPE &&
-    y > rectY + SCOPE &&
-    y < rectY + height - SCOPE
-  ) {
+  if (x > rectX + SCOPE && x < rectX + width - SCOPE && y > rectY + SCOPE && y < rectY + height - SCOPE) {
     return DIRECTIONS.MIDDLE;
   }
 
@@ -531,7 +528,7 @@ function getDirection(rect: Rect | null, e: MouseEvent) {
 
 // 获取命中的组件
 function getMatchedComponentsByLoc(x: number, y: number) {
-  return [...drag._rectMap.values()].filter((rect: Rect) => {
+  return [...drag._componentsMap.values()].filter((rect: Rect) => {
     const { width, height } = rect;
     const { x: rectX, y: rectY } = rect.$el.getBoundingClientRect();
     const inX = rectX < x && rectX + width > x;
@@ -544,7 +541,7 @@ function getMatchedComponentsByLoc(x: number, y: number) {
 function getMatchedComponentsById(e: MouseEvent): Rect | null {
   const { id = null } = (e.target as HTMLButtonElement)?.dataset;
   if (!id) return null;
-  return drag._rectMap.get(id);
+  return drag._componentsMap.get(id);
 }
 
 // 绑定事件
@@ -556,68 +553,36 @@ function bindEventCenter(drag: Drag) {
 }
 
 // 碰撞判断
-function getCollidingComponents(): Rect[] {
-  const checkedComponents = getComponentsByStatus();
-  const unCheckedComponents = getComponentsByStatus(false);
-
-  const collodingComponents: Rect[] = [];
-  checkedComponents.forEach((source) => {
-    collodingComponents.push(
-      ...unCheckedComponents.filter((target) => isColliding(source, target))
-    );
-  });
-
-  return collodingComponents;
+function getCollidingComponents(target: Rect): Rect[] {
+  const $components = [...drag._componentsMap.values()].sort((a, b) => a.layout - b.layout);
+  return $components.filter((source) => isColliding(source, target));
 }
 
 // 是否碰撞
 function isColliding(source: Rect, target: Rect): boolean {
   const { width: sWidth, height: sHeight, left: sLeft, top: sTop } = source;
   const { width: tWidth, height: tHeight, left: tLeft, top: tTop } = target;
-  return !(
-    sTop + sHeight < tTop ||
-    sTop > tTop + tHeight ||
-    sLeft + sWidth < tLeft ||
-    sLeft > tLeft + tWidth
-  );
+  return !(sTop + sHeight < tTop || sTop > tTop + tHeight || sLeft + sWidth < tLeft || sLeft > tLeft + tWidth);
 }
-
-// 更新层级
-function updateLayout() {
-  // 找到所有碰撞的components
-  // 找到最顶层的components
-  // 将移动组件被挂在到最顶层
-  const collidingComponents = getCollidingComponents();
-  const unCheckedComponents = getComponentsByStatus(false);
-
-  const unCheckedComponentLayout = Math.max.apply(
-    Math,
-    unCheckedComponents.map((component) => component.layout)
-  );
-
-  if (collidingComponents.length === 0) {
-    //
-  }
-
-  // 0. 推到最顶层
-  // 1. 所有模块重排堆叠顺序
-  //  1.1 所有模块按堆叠顺序升序排序
-  //  1.2 for 当前所有模块
-  //       获取层级小于 当前循环项层级的所有模块
-  //       将当前循环项 与 小于当前循环项层级的所有模块 进行碰撞判断
-  //       如果无碰撞项 则 当前循环项 层级为 1
-  //       如果有碰撞项 则 当前循环项 层级为 碰撞项中最高层级 + 1
-}
-
 
 // 创建方块
-export const createShap = (options: any) => {
-  // 获取层级
-
-
-  const rect = creatRect(options);
+export const createShap = (options: any = {}) => {
+  const sort = options.sort || drag._componentsMap.size + 1;
+  const rect = creatRect({ ...options, sort });
+  const $components = getCollidingComponents(rect).sort((a, b) => a.layout - b.layout);
+  if ($components.length > 0) {
+    rect.layout = ($components.pop() as Rect).layout + 1;
+  } else {
+    rect.layout = 1;
+  }
   const { id, $el } = rect;
-  setCss($el, { zIndex: drag._rectMap.size + 1 });
-  drag._rectMap.set(id, rect);
+  drag._componentsMap.set(id, rect);
   drag._canvas.$el.appendChild($el);
 };
+
+// 创建底部方框
+function updateComponentsRect() {
+  const checkedComponents = getComponentsByStatus(true);
+
+
+}
