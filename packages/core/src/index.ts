@@ -1,10 +1,7 @@
 import { creatRect } from '../../rect/src/index';
 import { EventCenter } from './event';
-
-// 是否是字符串
-const isString = (str: any) => typeof str === 'string';
-// 是否是DOM节点
-const isDomNode = (node: any) => node instanceof Element;
+import { isString, isDomNode, setCss } from '../../utils/index';
+import { createShapControls } from '../../shap-controls/index'
 
 // 定义rect 8个方向的误差范围
 const SCOPE = 10;
@@ -74,6 +71,7 @@ function init<T extends Drag>(drag: T, options: any) {
   // 格式化wrap
   normalizeContainer(drag, options);
   if (!drag._container) return;
+
   // 格式化画布
   normalizeCanvas(drag);
   // 格式化网格
@@ -177,8 +175,6 @@ function handleMouseDown(e: MouseEvent) {
   updateActionType(matchedComponent, e);
   // 更新组件状态
   updateComponentsStatus([matchedComponent], true);
-  // 更新选中方框
-  updateComponentsRect()
   // emit 组件信息
   const { left, top, width, height } = matchedComponent;
   drag.emit('click', { left, top, width, height, type: 'input' });
@@ -268,13 +264,6 @@ function drawGrid(grid: GridPros) {
   });
 }
 
-// 设置样式
-function setCss(node: Element, cssObj: any) {
-  Object.keys(cssObj).forEach((key) => {
-    // @ts-ignore
-    node.style[key] = cssObj[key];
-  });
-}
 // 更新参考点位置信息
 function updateRefPointLoc(e: MouseEvent, type?: string) {
   if (type === 'reset') {
@@ -581,8 +570,6 @@ export const createShap = (options: any = {}) => {
 };
 
 // 创建底部方框
-function updateComponentsRect() {
-  const checkedComponents = getComponentsByStatus(true);
-
-
+function updateShapControls() {
+  if(drag.shapControls)
 }

@@ -24,6 +24,9 @@ interface Drag {
   _underControl: boolean
   _canMove: boolean
 
+  // 缩放控制器
+  _shapControls: any
+
   // function
   on: (type: string, cb: Function) => void;
   off: (type: string, cb: Function) => void;

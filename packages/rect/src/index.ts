@@ -1,13 +1,7 @@
-// 是否是字符串
-const isString = (str: any) => typeof str === 'string';
-// 是否是DOM节点
-const isDomNode = (node: any) => node instanceof Element;
-// 生成唯一id
-const getUniqueId = () => Math.random().toString(36) + Date.now().toString(36);
-let index = 0
+import { isDomNode, setCss, getUniqueId } from '../../utils/index';
 
-const DEFAULT_HEIGHT = 120
-const DEFAULT_WIDTH = 120
+const DEFAULT_HEIGHT = 120 // 默认高度
+const DEFAULT_WIDTH = 120 // 默认宽度
 
 export const creatRect = (options: any = {}) => {
   const rect: any = {
@@ -19,7 +13,6 @@ export const creatRect = (options: any = {}) => {
   setCover(rect);
 
   const proxy = new Proxy(rect, {
-    // sethandler
     set(target, prop, value, receiver) {
       target[prop] = value;
       updateStyle(target, prop, value);
@@ -95,14 +88,6 @@ function setCover(rect: Rect) {
   rect.$el.appendChild($cover);
 }
 
-// 初始化样式
-function setCss(node: Element, cssObj: any) {
-  Object.keys(cssObj).forEach((key) => {
-    // @ts-ignore
-    node.style[key] = cssObj[key];
-  });
-}
-
 // proxy handler
 function updateStyle(target: any, prop: string | symbol, value: number) {
   switch (prop) {
@@ -123,11 +108,4 @@ function updateStyle(target: any, prop: string | symbol, value: number) {
       });
       break;
   }
-}
-
-// 属性设置处理函数
-function sethandler(target: any, prop: string, value: any, receiver: any) {
-  target[prop] = value;
-
-  return receiver
 }
