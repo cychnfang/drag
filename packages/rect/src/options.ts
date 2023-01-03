@@ -1,6 +1,9 @@
-export default {
-    id: string
-    el: null,
-    width: 800,
-    height: 600
+import { getUniqueId } from "../../utils/index";
+
+export function createShapOptions(): ShapRows {
+
+  return {
+    id: getUniqueId(),
+    $
+  };
 }

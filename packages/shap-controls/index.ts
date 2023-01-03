@@ -34,14 +34,6 @@ function getShapContainerhandler() {
   };
 }
 
-function shapControlSet(target: any, prop: string | symbol, value: any, receiver: any): boolean {
-  updateControlsLoc();
-  return receiver;
-}
-
-function gethandler(target: any, prop: string | symbol) {
-  return target[prop];
-}
 
 // 初始化缩放控制器
 function normalizeControls(shapControls: any) {
@@ -64,4 +56,6 @@ function normalizeControls(shapControls: any) {
 }
 
 // 更新controls位置
-function updateControlsLoc() {}
+function updateControlsLoc() {
+  
+}

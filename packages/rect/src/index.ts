@@ -16,6 +16,7 @@ export const creatRect = (options: any = {}) => {
     set(target, prop, value, receiver) {
       target[prop] = value;
       updateStyle(target, prop, value);
+      update();
       return receiver;
     },
 
@@ -90,6 +91,7 @@ function setCover(rect: Rect) {
 
 // proxy handler
 function updateStyle(target: any, prop: string | symbol, value: number) {
+  console.log(1)
   switch (prop) {
     case 'width':
     case 'height':
@@ -109,3 +111,14 @@ function updateStyle(target: any, prop: string | symbol, value: number) {
       break;
   }
 }
+
+
+function update() {
+
+}
+
+
+// 1. 基础信息 id left top width height max-width max-height type 
+// 2. update -> 更新 -> 异步更新
+
+

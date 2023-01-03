@@ -571,5 +571,7 @@ export const createShap = (options: any = {}) => {
 
 // 创建底部方框
 function updateShapControls() {
-  if(drag.shapControls)
+  if(drag.shapControls) {
+    
+  }
 }
